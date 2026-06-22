@@ -87,8 +87,8 @@ function listenToCloudSettings() {
                 mapBtn.href = data.mapUrl || "https://maps.google.com";
             }
 
-            // و) جلب وبناء شبكات الخدمات والمراجعات سحابياً إن وُجدت
-            currentServices = data.servicesData || defaultServices;
+            // و) جلب وبناء شبكات الخدمات والمراجعات سحابياً (تم توحيد المسمى هنا ليتطابق مع لوحة التحكم)
+            currentServices = data.services || defaultServices;
             currentReviews = data.reviewsData || defaultReviews;
 
             renderServicesGrid(currentServices);
@@ -138,7 +138,7 @@ function renderServicesGrid(services) {
                 <img src="${service.img}" alt="${service.title}" class="service-image">
                 <div class="service-content">
                     <h3>${service.title}</h3>
-                    <p>${service.desc.substring(0, 75)}...</p>
+                    <p>${service.desc ? service.desc.substring(0, 75) + '...' : ''}</p>
                     <span class="read-more-btn">عرض التفاصيل ←</span>
                 </div>
             </div>
