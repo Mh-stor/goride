@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="site-title">Go Ride - رحلتك، وصلتك، في دقيقتين</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="site-wrapper">
+        
+        <header class="header-navigation">
+            <div class="nav-container">
+                <div class="brand-logo-container">
+                    <img src="logo.png" alt="GoRide Logo" class="app-custom-logo" onerror="this.style.display='none';">
+                    <div class="brand-logo" id="nav-brand-text">Go<span>Ride</span></div>
+                </div>
+                <nav class="nav-links">
+                    <a href="#hero" class="active" id="menu-home">الرئيسية</a>
+                    <a href="#services" id="menu-services">الخدمات</a>
+                    <a href="#features" id="menu-features">مميزاتنا</a>
+                    <a href="#reviews" id="menu-reviews">آراء عملائنا</a>
+                    <a href="#support" id="menu-support">الدعم والشكاوى</a>
+                </nav>
+            </div>
+        </header>
+
+        <section id="hero" class="hero-section">
+            <div class="hero-content">
+                <h1 class="hero-title" id="hero-main-title">رحلتك، وصلتك،<br>في دقيقتين!</h1>
+                <p class="hero-subtitle" id="hero-sub-text">امكانيات لا توصف في تطبيق واحد</p>
+                
+                <div class="store-badges">
+                    <a id="link-apple" href="https://apps.apple.com/sa/app/go-ride" target="_blank" class="store-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/3c/Download_on_the_App_Store_Badge.svg" alt="App Store">
+                    </a>
+                    <a id="link-android" href="https://play.google.com/store/apps/details?id=com.goride" target="_blank" class="store-btn">
+                        <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Google Play">
+                    </a>
+                </div>
+            </div>
+            
+            <div class="hero-mockup-container">
+                <div class="mockup-wrapper">
+                    <div class="phone-mockup">
+                        <div class="phone-screen">
+                            <div class="map-placeholder">
+                                <div class="route-line"></div>
+                                <div class="pin pin-start"></div>
+                                <div class="pin pin-end pulse-effect"></div>
+                                
+                                <div class="map-location-card">
+                                    <span class="loc-tag">المقر الرئيسي</span>
+                                    <h4 class="loc-title">📍 مركز GoRide المركزي</h4>
+                                    <p class="loc-status">متاح الآن لاستقبالكم</p>
+                                </div>
+                            </div>
+                            <div class="phone-ui-card">
+                                <span class="app-mini-logo">GoRide Engine</span>
+                                <div class="ui-btn-group">
+                                    <a id="hero-map-btn" href="https://maps.google.com" target="_blank" class="ui-mini-btn btn-active-map">
+                                        🚀 اذهب إلى المقر على الخريطة
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="video-section-container">
+            <div class="section-main-title" id="sec-title-videos">🎥 المشغل الذكي والتفاعلي للمنصة</div>
+            <div class="video-slider-container">
+                <div class="side-video-panel" onclick="swapVideo(1)">
+                    <video id="side-video-1" loop muted autoplay playsinline></video>
+                </div>
+                <div class="center-video-panel">
+                    <video id="main-video" controls autoplay playsinline></video>
+                </div>
+                <div class="side-video-panel" onclick="swapVideo(2)">
+                    <video id="side-video-2" loop muted autoplay playsinline></video>
+                </div>
+            </div>
+        </section>
+
+        <section id="services" class="services-section">
+            <h2 class="section-title" id="sec-title-services">الخدمات</h2>
+            <div class="services-grid" id="dynamic-services-grid"></div>
+
+            <div id="service-detail-popup" class="service-popup-panel">
+                <div class="popup-body">
+                    <div class="popup-media-frame" id="popup-media-box"></div>
+                    <h4 id="popup-service-title">اسم الخدمة</h4>
+                    <p id="popup-service-desc">الشرح هنا...</p>
+                    <button class="close-popup-btn" onclick="closeServiceDetail()">إغلاق التفاصيل</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="features" class="features-section">
+            <h2 class="section-title" id="sec-title-features">مميزاتنا</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🛡️</div>
+                    <div class="feature-info">
+                        <h3>أمان وراحة</h3>
+                        <p>نعمل بصورة راقية تضمن الحماية</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💳</div>
+                    <div class="feature-info">
+                        <h3>أسعار مناسبة</h3>
+                        <p>أفضل جودة بأقل تكلفة احتسابية</p>
+                    </div>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🕒</div>
+                    <div class="feature-info">
+                        <h3>دعم سريع</h3>
+                        <p>تواصل وتجاوب منظم على مدار الساعة</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="reviews" class="reviews-section">
+            <h2 class="section-title" id="sec-title-reviews">آراء عملائنا</h2>
+            <div class="reviews-grid" id="dynamic-reviews-grid"></div>
+        </section>
+
+        <section id="support" class="support-section">
+            <div class="support-card-box">
+                <h3 id="sec-title-support">📥 صندوق الاستفسارات والشكاوى الإلكتروني</h3>
+                <form id="complaintForm" onsubmit="sendComplaint(event)">
+                    <div class="form-group-row">
+                        <label>الاسم الكريم:</label>
+                        <input type="text" id="comp-name" required placeholder="اكتب اسمك الثلاثي هنا...">
+                    </div>
+                    <div class="form-group-row">
+                        <label>تفاصيل الرسالة أو الشكوى:</label>
+                        <textarea id="comp-text" rows="4" required placeholder="اكتب تفاصيل استفسارك أو الشكوى هنا..."></textarea>
+                    </div>
+                    <button type="submit" class="submit-action-btn">إرسال الرسالة فوراً للإدارة</button>
+                </form>
+            </div>
+        </section>
+
+        <footer class="main-footer">
+            <p>© 2026 GoRide. جميع الحقوق محفوظة</p>
+        </footer>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
