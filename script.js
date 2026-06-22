@@ -1,4 +1,25 @@
-// مصفوفات البيانات الافتراضية لحماية الموقع في حال كانت الذاكرة فارغة
+// 1. استدعاء مكتبات وتوابع Firebase الحديثة عبر الـ CDN لتعمل مباشرة على الويب
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+import { getFirestore, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+// 2. مفاتيح وتكوين السيرفر السحابي الخاص بمشروعك GoRide
+const firebaseConfig = {
+  apiKey: "AIzaSyDf_edtZzF4kay5cNTSHtgUcE_QOkIrz1k",
+  authDomain: "goride-a5f66.firebaseapp.com",
+  projectId: "goride-a5f66",
+  storageBucket: "goride-a5f66.firebasestorage.app",
+  messagingSenderId: "868206593746",
+  appId: "1:868206593746:web:8f7364dabb9cb6413ccf0b"
+};
+
+// 3. تهيئة النظام والاتصال بقاعدة البيانات السحابية
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+// تحديد مرجع المستند السحابي لإعدادات الموقع
+const settingsDocRef = doc(db, "site_settings", "v1");
+
+// 4. مصفوفات البيانات الافتراضية لحماية تصميم الموقع في حال كان السيرفر السحابي فارغاً
 const defaultVideos = [
     "https://archive.org/download/img-8101_202606/IMG_8098.MP4",
     "https://archive.org/download/img-8101_202606/IMG_8100.MP4",
@@ -8,7 +29,7 @@ const defaultVideos = [
 const defaultServices = [
     { title: "توصيل طعام", desc: "أشهى المأكولات والوجبات الساخنة من مطاعمك المفضلة مباشرة إلى باب بيتك بأعلى سرعة.", img: "https://images.unsplash.com/photo-1513104890138-7c749659a591?q=80&w=400" },
     { title: "توصيل طلبات", desc: "توصيل وشحن الطرود، الهدايا، والمستندات الهامة بسرعة فائقة وأمان مطلق يضمن سلامة شحنتك.", img: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?q=80&w=400" },
-    { title: "توصيل ركاب", desc: "رحلات وتوصيل يومي ذكي وآمن مع كباتن محترفين مدربين، متاحين لخدمتك على مدار الساعة.", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=400" }
+    { title: "توصيل ركابة", desc: "رحلات وتوصيل يومي ذكي وآمن مع كباتن محترفين مدربين، متاحين لخدمتك على مدار الساعة.", img: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?q=80&w=400" }
 ];
 
 const defaultReviews = [
@@ -16,49 +37,79 @@ const defaultReviews = [
     { name: "أحمد علي", title: "مهندس تقني", text: "التطبيق الأفضل للتنقل الداخلي، الأسعار منافسة جداً والتعامل راقٍ للغاية.", avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=150" }
 ];
 
-// دالة التحميل والمزامنة الرئيسية عند فتح الموقع
+// متغيرات عامة لحفظ الحالة الديناميكية الحالية للخدمات والمراجعات
+let currentServices = defaultServices;
+let currentReviews = defaultReviews;
+
+// 5. دالة التحميل والمزامنة السحابية الرئيسية التلقائية عند فتح الموقع
 document.addEventListener("DOMContentLoaded", () => {
-    loadDynamicSettings();
-    renderServicesGrid();
-    renderReviewsGrid();
+    // تفعيل ميزة مراقبة السيرفر الفورية Realtime Listener
+    listenToCloudSettings();
+    
+    // ربط الدوال المتبقية بالنطاق العام (window) لكي تظل صالحة للعمل مع الـ modules
+    window.swapVideo = swapVideo;
+    window.openServiceDetail = openServiceDetail;
+    window.closeServiceDetail = closeServiceDetail;
+    window.sendComplaint = sendComplaint;
 });
 
-// 1. قراءة وتطبيق الإعدادات الديناميكية والروابط من الـ localStorage
-function loadDynamicSettings() {
-    // تحديث روابط الفيديوهات للمشغل الذكي
-    document.getElementById('main-video').src = localStorage.getItem('gr_video_1') || defaultVideos[0];
-    document.getElementById('side-video-1').src = localStorage.getItem('gr_video_2') || defaultVideos[1];
-    document.getElementById('side-video-2').src = localStorage.getItem('gr_video_3') || defaultVideos[2];
+// 6. ميزة الاستماع الفوري والتطبيق السحابي بديل الـ localStorage
+function listenToCloudSettings() {
+    onSnapshot(settingsDocRef, (docSnap) => {
+        if (docSnap.exists()) {
+            const data = docSnap.data();
+            
+            // أ) تحديث روابط الفيديوهات للمشغل الذكي
+            if(document.getElementById('main-video')) document.getElementById('main-video').src = data.video1 || defaultVideos[0];
+            if(document.getElementById('side-video-1')) document.getElementById('side-video-1').src = data.video2 || defaultVideos[1];
+            if(document.getElementById('side-video-2')) document.getElementById('side-video-2').src = data.video3 || defaultVideos[2];
 
-    // تحديث أسماء وعناوين القائمة العلوية
-    document.getElementById('menu-home').innerText = localStorage.getItem('gr_title_home') || "الرئيسية";
-    document.getElementById('menu-services').innerText = localStorage.getItem('gr_title_services') || "الخدمات";
-    document.getElementById('menu-features').innerText = localStorage.getItem('gr_title_features') || "مميزاتنا";
-    document.getElementById('menu-reviews').innerText = localStorage.getItem('gr_title_reviews') || "آراء عملائنا";
-    document.getElementById('menu-support').innerText = localStorage.getItem('gr_title_support') || "الدعم والشكاوى";
+            // ب) تحديث أسماء وعناوين القائمة العلوية Navbar
+            if(document.getElementById('menu-home')) document.getElementById('menu-home').innerText = data.titleHome || "الرئيسية";
+            if(document.getElementById('menu-services')) document.getElementById('menu-services').innerText = data.titleServices || "الخدمات";
+            if(document.getElementById('menu-features')) document.getElementById('menu-features').innerText = data.titleFeatures || "مميزاتنا";
+            if(document.getElementById('menu-reviews')) document.getElementById('menu-reviews').innerText = data.reviewsTitle || "آراء عملائنا";
+            if(document.getElementById('menu-support')) document.getElementById('menu-support').innerText = data.titleSupport || "الدعم والشكاوى";
 
-    // تحديث عناوين الأقسام الرئيسية في الصفحة
-    if(document.getElementById('sec-title-services')) document.getElementById('sec-title-services').innerText = localStorage.getItem('gr_title_services') || "الخدمات";
-    if(document.getElementById('sec-title-features')) document.getElementById('sec-title-features').innerText = localStorage.getItem('gr_title_features') || "مميزاتنا";
-    if(document.getElementById('sec-title-reviews')) document.getElementById('sec-title-reviews').innerText = localStorage.getItem('gr_title_reviews') || "آراء عملائنا";
-    if(document.getElementById('sec-title-support')) document.getElementById('sec-title-support').innerText = localStorage.getItem('gr_title_support') || "📥 صندوق الاستفسارات والشكاوى الإلكتروني";
+            // ج) تحديث عناوين الأقسام الرئيسية في الصفحة Headers
+            if(document.getElementById('sec-title-services')) document.getElementById('sec-title-services').innerText = data.titleServices || "الخدمات";
+            if(document.getElementById('sec-title-features')) document.getElementById('sec-title-features').innerText = data.titleFeatures || "مميزاتنا";
+            if(document.getElementById('sec-title-reviews')) document.getElementById('sec-title-reviews').innerText = data.reviewsTitle || "آراء عملائنا";
+            if(document.getElementById('sec-title-support')) document.getElementById('sec-title-support').innerText = data.titleSupport || "📥 صندوق الاستفسارات والشكاوى الإلكتروني";
 
-    // تحديث روابط تحميل التطبيق للمتاجر
-    document.getElementById('link-apple').href = localStorage.getItem('gr_link_apple') || "https://apps.apple.com/sa/app/go-ride";
-    document.getElementById('link-android').href = localStorage.getItem('gr_link_android') || "https://play.google.com/store/apps/details?id=com.goride";
+            // د) تحديث روابط تحميل التطبيق للمتاجر
+            if(document.getElementById('link-apple')) document.getElementById('link-apple').href = data.linkApple || "https://apps.apple.com/sa/app/go-ride";
+            if(document.getElementById('link-android')) document.getElementById('link-android').href = data.linkAndroid || "https://play.google.com/store/apps/details?id=com.goride";
 
-    // [الخاصية الجديدة]: تحديث رابط الخريطة لزر مقر GoRide في الهاتف التفاعلي
-    const mapBtn = document.getElementById('hero-map-btn');
-    if (mapBtn) {
-        mapBtn.href = localStorage.getItem('gr_map_url') || "https://maps.google.com";
-    }
+            // هـ) تحديث رابط زر موقع الخريطة التفاعلي
+            const mapBtn = document.getElementById('hero-map-btn');
+            if (mapBtn) {
+                mapBtn.href = data.mapUrl || "https://maps.google.com";
+            }
+
+            // و) جلب وبناء شبكات الخدمات والمراجعات سحابياً إن وُجدت
+            currentServices = data.servicesData || defaultServices;
+            currentReviews = data.reviewsData || defaultReviews;
+
+            renderServicesGrid(currentServices);
+            renderReviewsGrid(currentReviews);
+
+            console.log("⚡ تمت المزامنة الفورية وتحديث واجهة الموقع سحابياً بنجاح!");
+        } else {
+            console.log("السيرفر فارغ حالياً، يتم تشغيل الموقع بالقيم الافتراضية.");
+            renderServicesGrid(defaultServices);
+            renderReviewsGrid(defaultReviews);
+        }
+    });
 }
 
-// 2. تبديل الفيديوهات داخل المشغل التفاعلي ومنع الزوم والتعليق
+// 7. تبديل الفيديوهات داخل المشغل التفاعلي
 function swapVideo(panelIndex) {
     const mainVid = document.getElementById('main-video');
     const sideVid1 = document.getElementById('side-video-1');
     const sideVid2 = document.getElementById('side-video-2');
+
+    if (!mainVid || !sideVid1 || !sideVid2) return;
 
     let currentMain = mainVid.src;
 
@@ -75,14 +126,12 @@ function swapVideo(panelIndex) {
     sideVid2.play().catch(err => console.log(err));
 }
 
-// 3. بناء شبكة بطاقات الخدمات برمجياً ديناميكياً
-function renderServicesGrid() {
+// 8. بناء شبكة بطاقات الخدمات برمجياً ديناميكياً
+function renderServicesGrid(services) {
     const grid = document.getElementById('dynamic-services-grid');
     if (!grid) return;
     
-    const services = JSON.parse(localStorage.getItem('gr_services_data')) || defaultServices;
     grid.innerHTML = '';
-
     services.forEach((service, index) => {
         grid.innerHTML += `
             <div class="service-card" onclick="openServiceDetail(${index})">
@@ -97,10 +146,10 @@ function renderServicesGrid() {
     });
 }
 
-// 4. نافذة عرض تفاصيل الخدمة المنبثقة (Popup)
+// 9. نافذة عرض تفاصيل الخدمة المنبثقة (Popup)
 function openServiceDetail(index) {
-    const services = JSON.parse(localStorage.getItem('gr_services_data')) || defaultServices;
-    const item = services[index];
+    const item = currentServices[index];
+    if (!item) return;
 
     document.getElementById('popup-service-title').innerText = item.title;
     document.getElementById('popup-service-desc').innerText = item.desc;
@@ -113,14 +162,12 @@ function closeServiceDetail() {
     document.getElementById('service-detail-popup').classList.remove('popup-visible');
 }
 
-// 5. بناء شبكة آراء ومراجعات العملاء ديناميكياً
-function renderReviewsGrid() {
+// 10. بناء شبكة آراء ومراجعات العملاء ديناميكياً
+function renderReviewsGrid(reviews) {
     const grid = document.getElementById('dynamic-reviews-grid');
     if (!grid) return;
 
-    const reviews = JSON.parse(localStorage.getItem('gr_reviews_data')) || defaultReviews;
     grid.innerHTML = '';
-
     reviews.forEach(rev => {
         grid.innerHTML += `
             <div class="review-card">
@@ -137,7 +184,7 @@ function renderReviewsGrid() {
     });
 }
 
-// 6. معالجة صندوق الشكاوى والاستفسارات وإرسالها
+// 11. معالجة صندوق الشكاوى والاستفسارات وإرسالها
 function sendComplaint(event) {
     event.preventDefault();
     const name = document.getElementById('comp-name').value.trim();
